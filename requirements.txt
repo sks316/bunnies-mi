@@ -1,0 +1,4 @@
+asyncio
+aiohttp
+aiofiles
+git+https://github.com/yupix/Mi.py.git
