@@ -2,6 +2,8 @@ import asyncio
 import aiohttp
 import aiofiles
 import json
+import time
+import os
 
 import config
 
@@ -19,13 +21,37 @@ class bunnybot(commands.Bot):
 
     async def on_ready(self, ws):
         await connect_channel(ws)
-        self.postbunny.start()
+        self.checktime.start()
         print(f"Online! {self.user.name} {self.user.id}")
 
     async def on_reconnect(self, ws):
         await connect_channel(ws)
 
+    
+
     @tasks.loop(3600)
+    async def checktime(self):
+        #--ensure an hour has actually passed since last post, if this isn't here then the bot will post a new bunny with every reboot, possibly causing more than one post per hour--#
+        if os.path.exists("timestamp.txt"):
+            with open('timestamp.txt', 'r') as f:
+                timestamp = f.read()
+            if float(time.time()) - float(timestamp) > 3599:
+                newtimestamp = time.time()
+                with open('timestamp.txt', 'w') as f:
+                    f.write(str(newtimestamp))
+                bot.postbunny()
+            else:
+                print("it hasn't been longer than an hour - no bunny posted.")
+        #--if no timestamp.txt exists in the current directory, make a new one and post a bunny--#
+        else:
+            timestamp = time.time()
+            with open('timestamp.txt', 'w') as f:
+                f.write(str(timestamp))
+            print("a new timestamp.txt has been created in the bot directory. please don't delete this file, it's important and helps make sure a bunny is posted only every hour!")
+            await bot.postbunny()
+            
+    
+
     async def postbunny(self):
         #--get info from bunnies.io--#
         async with aiohttp.ClientSession() as session:
