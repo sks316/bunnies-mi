@@ -39,7 +39,7 @@ class bunnybot(commands.Bot):
                 newtimestamp = time.time()
                 with open('timestamp.txt', 'w') as f:
                     f.write(str(newtimestamp))
-                bot.postbunny()
+                await bot.postbunny()
             else:
                 print("it hasn't been an hour - no bunny posted.")
         #--if no timestamp.txt exists in the current directory, make a new one and post a bunny--#
